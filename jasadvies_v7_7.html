@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mijn Jasadvies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+ *, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg:           #F6F5F3;
+  --card:         #FFFFFF;
+  --card-2:       #FAFAF9;
+  --text:         #141414;
+  --muted:        #6B6B6B;
+  --muted-light:  #A0A0A0;
+  --accent:       #2563EB;
+  --accent-dim:   rgba(37, 99, 235, 0.08);
+  --accent-mid:   rgba(37, 99, 235, 0.18);
+  --border:       rgba(0, 0, 0, 0.07);
+  --border-mid:   rgba(0, 0, 0, 0.11);
+  --radius:       clamp(14px, 2.2vw, 20px);
+  --radius-sm:    clamp(10px, 1.6vw, 14px);
+  --shadow-sm:    0 1px 2px rgba(0,0,0,0.04), 0 2px 6px rgba(0,0,0,0.04);
+  --shadow-md:    0 2px 8px rgba(0,0,0,0.05), 0 6px 24px rgba(0,0,0,0.06);
+  --shadow-lg:    0 4px 12px rgba(0,0,0,0.07), 0 12px 40px rgba(0,0,0,0.08);
+
+  --sp-xs:  clamp(0.40rem, 0.92vw,  0.63rem);
+  --sp-sm:  clamp(0.69rem, 1.61vw,  1.15rem);
+  --sp-md:  clamp(1.035rem, 2.3vw,  1.725rem);
+  --sp-lg:  clamp(1.38rem,  3.22vw,  2.3rem);
+  --sp-xl:  clamp(1.84rem,  4.025vw, 2.875rem);
+
+  --text-xs:   clamp(0.58rem, 1.1vw,  0.72rem);
+  --text-sm:   clamp(0.72rem, 1.4vw,  0.88rem);
+  --text-base: clamp(0.82rem, 1.6vw,  1rem);
+  --text-lg:   clamp(1.3rem,  2.8vw,  1.7rem);
+  --text-xl:   clamp(1.6rem,  3.5vw,  2.4rem);
+  --text-2xl:  clamp(2.8rem,  6.5vw,  5rem);
+  --text-sup:  clamp(1.1rem,  2.5vw,  2rem);
+
+  --titlebar-h: clamp(44px, 8vh, 80px);
+}
+
+html {
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* ── Title Bar ── */
+
+.titlebar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--titlebar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(0.75rem, 2.5vw, 1.5rem);
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border-bottom: 1px solid var(--border);
+}
+
+.menu-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4.5px;
+  padding: 6px 7px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.menu-btn:hover { background: rgba(0, 0, 0, 0.05); }
+
+.menu-btn span {
+  display: block;
+  width: 18px;
+  height: 1.5px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.2s;
+}
+.menu-btn.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.menu-btn.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.menu-btn.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 170px;
+  background: var(--card);
+  border: 1px solid var(--border-mid);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  transform-origin: top left;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dropdown.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+
+.dropdown-section-label {
+  padding: 10px 16px 5px;
+  font-size: 0.60rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-light);
+}
+
+.dropdown a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.dropdown a:last-child { border-bottom: none; }
+.dropdown a:hover { background: var(--accent-dim); }
+.dropdown a.active { color: var(--accent); }
+
+.dropdown a .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.dropdown a.active .dot,
+.dropdown a:hover .dot { opacity: 1; }
+
+.titlebar-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  font-weight: 400;
+  letter-spacing: -0.2px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.titlebar-location {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: clamp(0.60rem, 1.2vw, 0.74rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.titlebar-location svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  stroke: var(--muted);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.titlebar-refresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 7px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: background 0.15s, color 0.15s;
+}
+.titlebar-refresh:hover { background: rgba(0, 0, 0, 0.05); color: var(--text); }
+.titlebar-refresh.spinning svg { animation: spinOnce 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+.titlebar-refresh svg {
+  width: 15px;
+  height: 15px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@keyframes spinOnce {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+
+/* ── Main content wrapper ── */
+
+.content-wrapper {
+  height: calc(90vh - var(--titlebar-h));
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-md) clamp(0.75rem, 3vw, 1.5rem);
+  overflow: hidden;
+  position: relative;
+}
+
+.page {
+  width: 100%;
+  max-width: min(620px, 92vw);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.5rem, 1.2vh, 0.9rem);
+}
+
+
+/* ── Header ── */
+
+.header {
+  text-align: center;
+  padding: clamp(0.1rem, 0.5vh, 0.4rem) 0 clamp(0.05rem, 0.2vh, 0.2rem);
+}
+.header h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: var(--text-xl);
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  line-height: 1.1;
+}
+.header .city {
+  margin-top: clamp(2px, 0.4vh, 4px);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+
+/* ── Temp card ── */
+
+.temp-card {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 42px 36px;
+  border-radius: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background:
+    radial-gradient(circle at top, rgba(255,255,255,0.95), rgba(255,255,255,0.88)),
+    linear-gradient(180deg, #ffffff 0%, #fbfbfa 100%);
+  box-shadow:
+    0 1px 1px rgba(255,255,255,0.8) inset,
+    0 12px 32px rgba(0,0,0,0.05),
+    0 30px 70px rgba(0,0,0,0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.temp-card::before {
+  content: '';
+  position: absolute;
+  left: -15%;
+  top: -35%;
+  width: 130%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 70%);
+  pointer-events: none;
+}
+.temp-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,0.35), transparent 35%);
+  pointer-events: none;
+}
+.temp-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+.weather-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: clamp(0.15rem, 0.5vh, 0.4rem);
+}
+.weather-icon-wrap svg {
+  width: clamp(2rem, 5vw, 3rem);
+  height: clamp(2rem, 5vw, 3rem);
+}
+
+.temp-main {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(3.4rem, 8vw, 5.8rem);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -3px;
+  color: #151515;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.temp-main sup {
+  font-size: var(--text-sup);
+  vertical-align: super;
+  letter-spacing: 0;
+  opacity: 0.55;
+}
+
+.feels-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 0.9rem;
+  font-size: 0.88rem;
+  letter-spacing: 0.02em;
+  color: #8A8A8A;
+}
+.feels-val { font-weight: 600; color: var(--text); }
+
+.weather-desc {
+  margin-top: clamp(0.1rem, 0.3vh, 0.28rem);
+  font-size: var(--text-sm);
+  letter-spacing: 0.01em;
+  text-transform: capitalize;
+  color: var(--muted);
+}
+
+
+/* ── Advice card ── */
+
+.advice-card {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: clamp(1rem, 2.2vh, 1.75rem) clamp(1.2rem, 3.5vw, 2rem);
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.28), 0 1px 4px rgba(37, 99, 235, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.advice-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.advice-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.advice-label {
+  position: relative;
+  margin-bottom: clamp(0.18rem, 0.4vh, 0.4rem);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+.advice-main {
+  position: relative;
+  margin-bottom: clamp(0.22rem, 0.6vh, 0.55rem);
+  font-family: 'DM Serif Display', serif;
+  font-size: var(--text-lg);
+  font-weight: 400;
+  line-height: 1.2;
+  color: #fff;
+}
+.advice-extra {
+  position: relative;
+  min-height: 1.2em;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+
+/* ── Stats grid ── */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(0.35rem, 0.9vw, 0.7rem);
+}
+
+.stat-card {
+  text-align: center;
+  padding: clamp(0.65rem, 1.6vh, 1.1rem) clamp(0.4rem, 1vw, 0.75rem);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+.stat-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: clamp(0.18rem, 0.45vh, 0.38rem);
+}
+.stat-icon-wrap svg {
+  width: clamp(15px, 2.2vw, 20px);
+  height: clamp(15px, 2.2vw, 20px);
+  stroke: var(--muted);
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.stat-label {
+  margin-bottom: 2px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.stat-value {
+  font-size: clamp(0.76rem, 1.5vw, 0.92rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 0.6rem;
+  font-size: var(--text-xs);
+  letter-spacing: 0.02em;
+  color: var(--muted-light);
+}
+
+
+/* ── Page fade-in ── */
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page > * { animation: fadeUp 0.4s ease both; }
+.page > *:nth-child(1) { animation-delay: 0.00s; }
+.page > *:nth-child(2) { animation-delay: 0.06s; }
+.page > *:nth-child(3) { animation-delay: 0.12s; }
+.page > *:nth-child(4) { animation-delay: 0.18s; }
+.page > *:nth-child(5) { animation-delay: 0.24s; }
+
+
+/* ── Scroll hint ── */
+
+.scroll-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 11%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  opacity: 0.35;
+  cursor: pointer;
+  transition: opacity 0.25s;
+  animation: hintBob 2.4s ease-in-out infinite;
+}
+.scroll-hint:hover { opacity: 0.8; }
+.scroll-hint span { display: none; }
+.scroll-hint svg {
+  width: 26px;
+  height: 26px;
+  stroke: var(--muted);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+
+/* ── Forecast section ── */
+
+.forecast-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(1.8rem, 4.5vh, 3.2rem) clamp(0.75rem, 3vw, 1.5rem) clamp(2.5rem, 6vh, 4rem);
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+.forecast-box {
+  width: 100%;
+  max-width: min(702px, 96vw);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.forecast-box.visible { opacity: 1; transform: translateY(0); }
+
+.forecast-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.65rem;
+  margin-bottom: clamp(1.1rem, 3vh, 1.8rem);
+}
+.forecast-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  font-weight: 400;
+  letter-spacing: -0.2px;
+  line-height: 1.1;
+  color: var(--text);
+}
+.forecast-subtitle {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.forecast-list {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+}
+
+.forecast-row {
+  display: grid;
+  grid-template-columns: 90px auto 1fr auto;
+  align-items: center;
+  gap: clamp(0.6rem, 2vw, 1.2rem);
+  padding: clamp(0.9rem, 2.2vh, 1.3rem) clamp(1rem, 3vw, 1.6rem);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.forecast-row:last-child { border-bottom: none; }
+.forecast-row:hover { background: var(--card-2); }
+
+.fc-time-col { display: flex; flex-direction: column; gap: 2px; }
+.fc-time-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.fc-time-sub {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--muted-light);
+}
+
+.fc-weather-col { display: flex; flex-direction: column; gap: 2px; }
+.fc-rain-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--muted);
+}
+.fc-rain-badge svg {
+  width: 11px;
+  height: 11px;
+  stroke: var(--muted);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.fc-jas-col {
+  padding: clamp(0.3rem, 0.8vh, 0.5rem) clamp(0.55rem, 1.5vw, 0.85rem);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  text-align: right;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-mid);
+  border-radius: var(--radius-sm);
+}
+.fc-jas-col strong {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.fc-temp-col {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -1px;
+  white-space: nowrap;
+  color: var(--text);
+}
+.fc-temp-col span {
+  font-size: 0.55em;
+  vertical-align: super;
+  opacity: 0.45;
+}
+    
+</style>
+</head>
+<body>
+
+<!-- ── Title Bar ── -->
+<nav class="titlebar">
+  <div style="position:relative; display:flex; align-items:center; gap:2px;">
+    <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <button class="titlebar-refresh" id="refreshBtn" onclick="triggerRefresh()" aria-label="Vernieuwen" title="Vernieuwen">
+      <svg viewBox="0 0 24 24">
+        <polyline points="23 4 23 10 17 10"/>
+        <polyline points="1 20 1 14 7 14"/>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+      </svg>
+    </button>
+    <div class="dropdown" id="dropdown">
+      <div class="dropdown-section-label">Locatie</div>
+      <a href="#" onclick="selectCity('Amsterdam');return false;" id="city-Amsterdam"><span class="dot"></span>Amsterdam</a>    
+      <a href="#" onclick="selectCity('Delft');return false;" id="city-Delft"><span class="dot"></span>Delft</a>
+      <a href="#" onclick="selectCity('Den Haag');return false;" id="city-Den Haag"><span class="dot"></span>Den Haag</a>
+      <a href="#" onclick="selectCity('Eindhoven');return false;" id="city-Eindhoven"><span class="dot"></span>Eindhoven</a>
+      <a href="#" onclick="selectCity('Groningen');return false;" id="city-Groningen"><span class="dot"></span>Groningen</a>
+      <a href="#" onclick="selectCity('Maastricht');return false;" id="city-Maastricht"><span class="dot"></span>Maastricht</a>      
+      <a href="#" onclick="selectCity('Rotterdam');return false;" id="city-Rotterdam"><span class="dot"></span>Rotterdam</a>
+      <a href="#" onclick="selectCity('Utrecht');return false;" id="city-Utrecht"><span class="dot"></span>Utrecht</a>        
+    </div>
+  </div>
+
+  <div class="titlebar-title">Jasadvies.nl</div>
+
+  <div class="titlebar-location">
+    <span id="navCity">Delft</span>
+    <svg viewBox="0 0 24 24">
+      <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </svg>
+  </div>
+</nav>
+
+<!-- ── Content ── -->
+<div class="content-wrapper">
+  <div class="page" id="app">
+
+    <div class="header">
+      <h1></h1>
+      <div class="city" id="cityName">Delft</div>
+    </div>
+
+    <div class="temp-card" id="tempCard">
+      <div class="weather-icon-wrap" id="weatherIconWrap">
+        <!-- SVG icon injected by JS -->
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="10" stroke="#F59E0B" stroke-width="2.5" fill="#FCD34D" fill-opacity="0.3"/>
+          <line x1="24" y1="6" x2="24" y2="10" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="24" y1="38" x2="24" y2="42" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="6" y1="24" x2="10" y2="24" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="38" y1="24" x2="42" y2="24" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="11.5" y1="11.5" x2="14.3" y2="14.3" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="33.7" y1="33.7" x2="36.5" y2="36.5" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="36.5" y1="11.5" x2="33.7" y2="14.3" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="14.3" y1="33.7" x2="11.5" y2="36.5" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="temp-main"><span id="temperature">--</span><sup>°</sup></div>
+      <div class="feels-row">
+        Voelt als <span class="feels-val" id="feelslike">--</span>°
+      </div>
+      <div class="weather-desc" id="weatherDesc">laden...</div>
+    </div>
+
+    <div class="advice-card" id="adviceCard">
+      <div class="advice-label">Kledingadvies</div>
+      <div class="advice-main" id="jastype">laden...</div>
+      <div class="advice-extra" id="advice">Weergegevens worden opgehaald…</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon-wrap">
+          <!-- Wind icon -->
+          <svg viewBox="0 0 24 24"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+        </div>
+        <div class="stat-label">Wind</div>
+        <div class="stat-value" id="wind">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap">
+          <!-- UV / Sun icon -->
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </div>
+        <div class="stat-label">UV-index</div>
+        <div class="stat-value" id="uv">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap">
+          <!-- Rain icon -->
+          <svg viewBox="0 0 24 24"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><line x1="8" y1="16" x2="8.01" y2="16"/><line x1="8" y1="20" x2="8.01" y2="20"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="12" y1="22" x2="12.01" y2="22"/><line x1="16" y1="16" x2="16.01" y2="16"/><line x1="16" y1="20" x2="16.01" y2="20"/></svg>
+        </div>
+        <div class="stat-label">Neerslag</div>
+        <div class="stat-value" id="rain">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap">
+          <!-- Humidity / droplet icon -->
+          <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+        </div>
+        <div class="stat-label">Vochtigheid</div>
+        <div class="stat-value" id="humidity">--</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div id="updated">Laden...</div>
+    </div>
+  </div>
+</div>
+
+<!-- scroll hint -->
+<div class="scroll-hint" onclick="document.getElementById('forecast-section').scrollIntoView({behavior:'smooth'})">
+  <span>Voorspelling</span>
+  <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+</div>
+
+<!-- ── Forecast Section ── -->
+<section class="forecast-section" id="forecast-section">
+  <div class="forecast-box" id="forecastBox">
+    <div class="forecast-header">
+      <div class="forecast-title">Voorspelling</div>
+      <div class="forecast-subtitle" id="forecastSubtitle">Komende 24 uur</div>
+    </div>
+
+    <!-- Timeline list -->
+    <div class="forecast-list" id="forecastGrid">
+
+      <div class="forecast-row" id="fc0">
+        <div class="fc-time-col">
+          <div class="fc-time-label" id="fc0-time">--</div>
+          <div class="fc-time-sub" id="fc0-timesub">--:--</div>
+        </div>
+        <div class="fc-temp-col" id="fc0-temp">--<span>°</span></div>
+        <div class="fc-weather-col">
+          <div class="fc-rain-badge">
+            <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+            <span id="fc0-rain">--%</span>
+          </div>
+        </div>
+        <div class="fc-jas-col" id="fc0-jas"><strong>laden…</strong></div>
+      </div>
+
+      <div class="forecast-row" id="fc1">
+        <div class="fc-time-col">
+          <div class="fc-time-label" id="fc1-time">--</div>
+          <div class="fc-time-sub" id="fc1-timesub">--:--</div>
+        </div>
+        <div class="fc-temp-col" id="fc1-temp">--<span>°</span></div>
+        <div class="fc-weather-col">
+          <div class="fc-rain-badge">
+            <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+            <span id="fc1-rain">--%</span>
+          </div>
+        </div>
+        <div class="fc-jas-col" id="fc1-jas"><strong>laden…</strong></div>
+      </div>
+
+      <div class="forecast-row" id="fc2">
+        <div class="fc-time-col">
+          <div class="fc-time-label" id="fc2-time">--</div>
+          <div class="fc-time-sub" id="fc2-timesub">--:--</div>
+        </div>
+        <div class="fc-temp-col" id="fc2-temp">--<span>°</span></div>
+        <div class="fc-weather-col">
+          <div class="fc-rain-badge">
+            <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+            <span id="fc2-rain">--%</span>
+          </div>
+        </div>
+        <div class="fc-jas-col" id="fc2-jas"><strong>laden…</strong></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+const apiKey = "6acc49bdb92a1b70e0ec90a75a7164a2";
+
+const cities = [
+  "Delft", "Amsterdam", "Rotterdam", "Utrecht",
+  "Eindhoven", "Groningen", "Den Haag", "Maastricht"
+];
+
+let selectedCity = "Delft";
+
+// SVG weather icons — keyed by OpenWeather main condition
+const weatherSVGs = {
+  Clear: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="24" cy="24" r="10" fill="#FCD34D" fill-opacity="0.35" stroke="#F59E0B" stroke-width="2.5"/>
+    <line x1="24" y1="5" x2="24" y2="10" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="24" y1="38" x2="24" y2="43" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="5" y1="24" x2="10" y2="24" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="38" y1="24" x2="43" y2="24" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="10.9" y1="10.9" x2="14.4" y2="14.4" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="33.6" y1="33.6" x2="37.1" y2="37.1" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="37.1" y1="10.9" x2="33.6" y2="14.4" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="14.4" y1="33.6" x2="10.9" y2="37.1" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`,
+
+  Clouds: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="18" cy="22" r="8" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="2"/>
+    <circle cx="28" cy="26" r="6" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="2"/>
+    <rect x="10" y="24" width="24" height="10" rx="5" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="2"/>
+    <circle cx="14" cy="18" r="6" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+    <circle cx="22" cy="15" r="7" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2"/>
+  </svg>`,
+
+  Rain: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M34 20a7 7 0 0 0-13.5-2.6A6 6 0 1 0 14 29h20a7 7 0 0 0 0-9z" fill="#DBEAFE" stroke="#60A5FA" stroke-width="2" stroke-linejoin="round"/>
+    <line x1="18" y1="34" x2="16" y2="40" stroke="#60A5FA" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="24" y1="34" x2="22" y2="40" stroke="#60A5FA" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="30" y1="34" x2="28" y2="40" stroke="#60A5FA" stroke-width="2.2" stroke-linecap="round"/>
+  </svg>`,
+
+  Drizzle: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M34 20a7 7 0 0 0-13.5-2.6A6 6 0 1 0 14 29h20a7 7 0 0 0 0-9z" fill="#DBEAFE" stroke="#93C5FD" stroke-width="2" stroke-linejoin="round"/>
+    <line x1="18" y1="34" x2="17" y2="37" stroke="#93C5FD" stroke-width="2" stroke-linecap="round"/>
+    <line x1="24" y1="34" x2="23" y2="37" stroke="#93C5FD" stroke-width="2" stroke-linecap="round"/>
+    <line x1="30" y1="34" x2="29" y2="37" stroke="#93C5FD" stroke-width="2" stroke-linecap="round"/>
+  </svg>`,
+
+  Thunderstorm: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M34 20a7 7 0 0 0-13.5-2.6A6 6 0 1 0 14 29h20a7 7 0 0 0 0-9z" fill="#F3F4F6" stroke="#6B7280" stroke-width="2" stroke-linejoin="round"/>
+    <polyline points="26,30 22,38 26,38 22,46" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+
+  Snow: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M34 20a7 7 0 0 0-13.5-2.6A6 6 0 1 0 14 29h20a7 7 0 0 0 0-9z" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="2" stroke-linejoin="round"/>
+    <line x1="18" y1="34" x2="18" y2="42" stroke="#93C5FD" stroke-width="2" stroke-linecap="round"/>
+    <line x1="15" y1="36" x2="21" y2="40" stroke="#93C5FD" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="21" y1="36" x2="15" y2="40" stroke="#93C5FD" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="28" y1="34" x2="28" y2="42" stroke="#93C5FD" stroke-width="2" stroke-linecap="round"/>
+    <line x1="25" y1="36" x2="31" y2="40" stroke="#93C5FD" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="31" y1="36" x2="25" y2="40" stroke="#93C5FD" stroke-width="1.8" stroke-linecap="round"/>
+  </svg>`,
+
+  Mist: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <line x1="10" y1="18" x2="38" y2="18" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="8" y1="24" x2="40" y2="24" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="12" y1="30" x2="36" y2="30" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>`,
+
+  default: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="20" cy="22" r="9" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
+    <path d="M34 22a7 7 0 0 0-13.5-2.6A6 6 0 1 0 14 31h20a7 7 0 0 0 0-9z" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="2" stroke-linejoin="round"/>
+  </svg>`
+};
+
+function triggerRefresh() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.remove('spinning');
+  void btn.offsetWidth;
+  btn.classList.add('spinning');
+  btn.addEventListener('animationend', () => btn.classList.remove('spinning'), { once: true });
+  getWeather();
+  getForecast();
+}
+
+function toggleMenu() {
+  const btn = document.getElementById('menuBtn');
+  const dd = document.getElementById('dropdown');
+  btn.classList.toggle('open');
+  dd.classList.toggle('open');
+}
+
+function selectCity(city) {
+  selectedCity = city;
+  cities.forEach(c => {
+    const el = document.getElementById('city-' + c);
+    if (el) {
+      el.style.fontWeight = (c === city) ? '700' : '';
+      el.classList.toggle('active', c === city);
+    }
+  });
+  document.getElementById('menuBtn').classList.remove('open');
+  document.getElementById('dropdown').classList.remove('open');
+  document.getElementById('navCity').innerText = city;
+  document.getElementById('cityName').innerText = city;
+  getWeather();
+}
+
+document.addEventListener('click', (e) => {
+  const btn = document.getElementById('menuBtn');
+  const dd = document.getElementById('dropdown');
+  if (!btn.contains(e.target) && !dd.contains(e.target)) {
+    btn.classList.remove('open');
+    dd.classList.remove('open');
+  }
+});
+
+async function getWeather() {
+  try {
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${selectedCity},NL&units=metric&lang=nl&appid=${apiKey}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const temp = Math.round(data.main.temp);
+    const feelsLike = Math.round(data.main.feels_like);
+    const windSpeed = Math.round(data.wind.speed * 3.6);
+    const humidity = data.main.humidity;
+    const weatherMain = data.weather[0].main;
+    const weatherDesc = data.weather[0].description;
+    const rain1h = data.rain?.['1h'] || 0;
+    const isRaining = weatherMain === "Rain" || weatherMain === "Drizzle" || weatherMain === "Thunderstorm";
+
+    document.getElementById('navCity').innerText = selectedCity;
+    document.getElementById('cityName').innerText = selectedCity;
+    document.getElementById('temperature').innerText = temp;
+    document.getElementById('feelslike').innerText = feelsLike;
+    document.getElementById('weatherDesc').innerText = weatherDesc;
+    document.getElementById('weatherIconWrap').innerHTML = weatherSVGs[weatherMain] || weatherSVGs.default;
+    document.getElementById('wind').innerText = `${windSpeed} km/u`;
+    document.getElementById('humidity').innerText = `${humidity}%`;
+    document.getElementById('rain').innerText = `${rain1h.toFixed(1)} mm`;
+    document.getElementById('updated').innerText = `Bijgewerkt om ${new Date().toLocaleTimeString('nl-NL', {hour:'2-digit',minute:'2-digit'})}`;
+
+    const uvIndex = await getUVIndex(data.coord.lat, data.coord.lon);
+    geefJasAdvies(feelsLike, temp, isRaining, windSpeed, humidity, uvIndex);
+  } catch (error) {
+    document.getElementById('jastype').innerText = "Kan gegevens niet ophalen";
+    document.getElementById('advice').innerText = "Controleer je internetverbinding.";
+    console.error(error);
+  }
+}
+
+async function getUVIndex(lat, lon) {
+  try {
+    const uvUrl = `https://api.openweathermap.org/data/2.5/uvi?lat=${lat}&lon=${lon}&appid=${apiKey}`;
+    const uvResponse = await fetch(uvUrl);
+    const uvData = await uvResponse.json();
+    const val = parseFloat(uvData.value);
+    document.getElementById('uv').innerText = val.toFixed(1);
+    return val;
+  } catch (e) {
+    document.getElementById('uv').innerText = "--";
+    return null;
+  }
+}
+
+function geefJasAdvies(feelsLike, temp, isRaining, windSpeedKmh, humidity, uvIndex) {
+  const uvHoog = uvIndex !== null && uvIndex >= 3;
+  const uvZeerHoog = uvIndex !== null && uvIndex >= 6;
+  const sterkWind = windSpeedKmh > 30;
+  const highHumidity = humidity > 75;
+
+  let jas = "";
+  let extra = [];
+
+  if (feelsLike < -10) {
+    jas = "Dikke winterjas + thermokleding";
+    extra = ["Muts, sjaal en handschoenen verplicht", "Bedek alle huid"];
+    if (isRaining) extra.push("Waterdichte laag bovenop");
+  } else if (feelsLike < 0) {
+    jas = isRaining ? "Winterjas + waterdichte laag" : "Winterjas + thermolaag";
+    extra = ["Muts en handschoenen", "Laag systeem: thermoshirt + fleece + jas"];
+    if (isRaining) extra.push("Waterdichte laarzen aangeraden");
+  } else if (feelsLike <= 5) {
+    jas = isRaining ? "Winterjas + regenjas" : "Winterjas";
+    if (isRaining) extra = ["Waterdichte schoenen", "Laagjes dragen"];
+    else extra = ["Sjaal en handschoenen aanbevolen"];
+  } else if (feelsLike <= 10) {
+    if (isRaining) { jas = "Winterjas of tussenjas + regenjas"; extra = ["Warme laag onder jas", "Waterdichte schoenen"]; }
+    else if (sterkWind) { jas = "Winterjas of windstopper"; extra = ["Wind koelt sterk af", "Winddichte buitenlaag"]; }
+    else { jas = "Winterjas of tussenjas"; if (uvHoog) extra = ["Zonnebril (lage winterzon kan misleidend zijn)"]; }
+  } else if (feelsLike <= 14) {
+    if (isRaining) { jas = "Tussenjas + regenjas"; extra = ["Warme trui eronder", "Waterdichte schoenen handig"]; }
+    else if (sterkWind) { jas = "Tussenjas of windstopper"; extra = ["Wind versterkt koudegevoel"]; }
+    else { jas = "Tussenjas of hoodie"; if (uvHoog) extra = ["Zonnebril", "Zonnecrème SPF 30+"]; }
+  } else if (feelsLike <= 18) {
+    if (isRaining) { jas = "Lichte regenjas of tussenjas"; extra = ["Compacte regenjas in de tas", "Waterdichte schoenen fijn"]; }
+    else if (sterkWind) { jas = "Windjack of lichte tussenjas"; extra = ["Wind koelt af op open plekken"]; }
+    else { jas = "Hoodie of lichte jas"; if (uvHoog) extra = ["Zonnebril", "Zonnecrème SPF 30+"]; else extra = ["'s Avonds een extra laag meenemen"]; }
+  } else if (feelsLike <= 22) {
+    if (isRaining) { jas = "Shirt + lichte regenjas"; extra = ["Ademende stof", "Bescherming zon én regen"]; }
+    else { jas = "Shirt of blouse"; if (uvZeerHoog) extra = ["Zonnecrème SPF 50+", "Zonnebril", "'s Avonds dunne laag meenemen"]; else if (uvHoog) extra = ["Zonnecrème SPF 30+", "Zonnebril"]; if (sterkWind) extra.push("Windjack optioneel"); }
+  } else if (feelsLike <= 27) {
+    if (isRaining) { jas = "Luchtig shirt + ultralichte regenjas"; extra = ["Voorkom oververhitting onder dichte jas"]; }
+    else { jas = "Luchtig shirt of zomerjurk"; extra = ["Zonnecrème SPF 50+", "Zonnehoed", "Lichte stoffen (katoen/linnen)"]; if (highHumidity) extra.push("Hoge luchtvochtigheid — extra hydratatie"); }
+  } else {
+    if (isRaining) { jas = "Luchtig shirt + ultralichte regenjas"; extra = ["Geventileerde regenjas", "Voorkom oververhitting"]; }
+    else { jas = "Tanktop of mouwloos shirt"; extra = ["Zonnecrème SPF 50+ — herhalen!", "Zonnehoed verplicht", "Vermijd donkere kleuren"]; if (highHumidity) extra.push("Hitte-index hoog — veel drinken"); }
+  }
+
+  document.getElementById('jastype').innerText = jas;
+  document.getElementById('advice').innerText = extra.length ? extra.join(" · ") : "Geen extra advies.";
+}
+
+getWeather();
+document.getElementById('city-' + selectedCity).classList.add('active');
+
+// ── Forecast ──
+const FIXED_SLOTS = [
+  { hour: 8,  label: "Ochtend",   sub: "08:00" },
+  { hour: 12, label: "Middag",    sub: "12:00" },
+  { hour: 18, label: "Avond",     sub: "18:00" },
+  { hour: 22, label: "'s Avonds", sub: "22:00" },
+];
+
+function getNextFixedSlots() {
+  const now = new Date();
+  const slots = [];
+  for (let dayOffset = 0; dayOffset <= 1; dayOffset++) {
+    for (const slot of FIXED_SLOTS) {
+      const d = new Date(now);
+      d.setDate(d.getDate() + dayOffset);
+      d.setHours(slot.hour, 0, 0, 0);
+      if (d > now) {
+        slots.push({ date: d, label: slot.label, sub: slot.sub });
+        if (slots.length === 3) return slots;
+      }
+    }
+  }
+  return slots;
+}
+
+function jasBrief(feelsLike, isRaining, windSpeedKmh) {
+  const sterkWind = windSpeedKmh > 30;
+  if (feelsLike < 0) return isRaining ? "Winterjas + waterdicht" : "Winterjas + thermolaag";
+  if (feelsLike <= 5) return isRaining ? "Winterjas + regenjas" : "Winterjas";
+  if (feelsLike <= 10) return isRaining ? "Tussenjas + regenjas" : sterkWind ? "Windstopper" : "Winterjas of tussenjas";
+  if (feelsLike <= 14) return isRaining ? "Tussenjas + regenjas" : sterkWind ? "Tussenjas of windstopper" : "Tussenjas of hoodie";
+  if (feelsLike <= 18) return isRaining ? "Lichte regenjas" : sterkWind ? "Windjack" : "Hoodie of lichte jas";
+  if (feelsLike <= 22) return isRaining ? "Shirt + regenjas" : "Shirt of blouse";
+  if (feelsLike <= 27) return isRaining ? "Luchtig shirt + regenjas" : "Luchtig shirt";
+  return isRaining ? "Shirt + ultralichte regenjas" : "Tanktop of mouwloos shirt";
+}
+
+async function getForecast() {
+  try {
+    const url = `https://api.openweathermap.org/data/2.5/forecast?q=${selectedCity},NL&units=metric&lang=nl&appid=${apiKey}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const list = data.list;
+    const slots = getNextFixedSlots();
+
+    slots.forEach((slot, idx) => {
+      let best = list[0], bestDiff = Infinity;
+      list.forEach(entry => {
+        const d = new Date(entry.dt * 1000);
+        const diff = Math.abs(d - slot.date);
+        if (diff < bestDiff) { bestDiff = diff; best = entry; }
+      });
+
+      const temp = Math.round(best.main.temp);
+      const feelsLike = Math.round(best.main.feels_like);
+      const windSpeed = Math.round((best.wind?.speed || 0) * 3.6);
+      const pop = Math.round((best.pop || 0) * 100);
+      const weatherMain = best.weather[0].main;
+      const isRaining = weatherMain === "Rain" || weatherMain === "Drizzle" || weatherMain === "Thunderstorm";
+      const jas = jasBrief(feelsLike, isRaining, windSpeed);
+
+      document.getElementById(`fc${idx}-time`).innerText = slot.label;
+      document.getElementById(`fc${idx}-timesub`).innerText = slot.sub;
+      document.getElementById(`fc${idx}-temp`).innerHTML = `${temp}<span>°</span>`;
+      document.getElementById(`fc${idx}-rain`).innerText = `${pop}% regen`;
+      document.getElementById(`fc${idx}-jas`).innerHTML = `<strong>${jas}</strong>`;
+    });
+  } catch(e) {
+    console.error('Forecast error:', e);
+  }
+}
+
+// Intersection observer — fade in
+const fcObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      fcObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+const forecastBox = document.getElementById('forecastBox');
+if (forecastBox) fcObserver.observe(forecastBox);
+
+getForecast();
+
+const _origSelectCity = selectCity;
+selectCity = function(city) {
+  _origSelectCity(city);
+  getForecast();
+};
+</script>
+</body>
+</html>
