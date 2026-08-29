@@ -488,17 +488,15 @@ body {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: clamp(0.4rem, 1vh, 0.55rem) clamp(0.9rem, 2.4vw, 1.2rem);
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 999px;
+  padding: 0.2rem 0.3rem;
+  background: none;
+  border: none;
   color: var(--muted);
   font-family: inherit;
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.15s ease, box-shadow 0.18s ease;
+  transition: color 0.18s ease, transform 0.15s ease;
 }
 .feedback-btn svg {
   width: 15px;
@@ -510,15 +508,11 @@ body {
   stroke-linejoin: round;
 }
 .feedback-btn:hover {
-  border-color: var(--border-mid);
   color: var(--text);
   transform: translateY(-1px);
 }
 .feedback-btn.selected {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.28);
+  color: var(--accent);
 }
 .feedback-btn.selected:hover { transform: translateY(-1px); }
 .feedback-btn:active { transform: translateY(0); }
@@ -531,7 +525,7 @@ body {
 .feedback-link {
   font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--accent);
+  color: var(--muted);
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
@@ -1035,12 +1029,12 @@ body.modal-open { overflow: hidden; }
         <div class="field-error">Selecteer een optie.</div>
       </div>
 
-      <div class="form-group" id="satisfactionGroup">
-        <label>Hoe accuraat vond je het kledingadvies? <span class="required-mark">*</span></label>
-        <div class="satisfaction-toggle" id="satisfactionToggle" role="radiogroup" aria-label="Tevredenheid over het kledingadvies">
-          <button type="button" class="satisfaction-option" data-value="niet-tevreden">Niet tevreden</button>
-          <button type="button" class="satisfaction-option" data-value="tevreden">Tevreden</button>
-          <button type="button" class="satisfaction-option" data-value="zeer-tevreden">Zeer tevreden</button>
+            <div class="form-group" id="satisfactionGroup">
+        <label>Het advies was: <span class="required-mark">*</span></label>
+        <div class="satisfaction-toggle" id="satisfactionToggle" role="radiogroup" aria-label="Was het advies te koud, net goed of te warm">
+          <button type="button" class="satisfaction-option" data-value="te-koud">Te koud</button>
+          <button type="button" class="satisfaction-option" data-value="net-goed">Net goed</button>
+          <button type="button" class="satisfaction-option" data-value="te-warm">Te warm</button>
         </div>
         <div class="field-error">Kies een van de opties.</div>
       </div>
