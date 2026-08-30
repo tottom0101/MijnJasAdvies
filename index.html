@@ -1029,7 +1029,7 @@ body.modal-open { overflow: hidden; }
         <div class="field-error">Selecteer een optie.</div>
       </div>
 
-            <div class="form-group" id="satisfactionGroup">
+      <div class="form-group" id="satisfactionGroup">
         <label>Het advies was: <span class="required-mark">*</span></label>
         <div class="satisfaction-toggle" id="satisfactionToggle" role="radiogroup" aria-label="Was het advies te koud, net goed of te warm">
           <button type="button" class="satisfaction-option" data-value="te-koud">Te koud</button>
@@ -1041,6 +1041,42 @@ body.modal-open { overflow: hidden; }
 
       <button type="submit" class="submit-btn" id="submitFeedbackBtn">Verstuur feedback</button>
       <div class="form-confirmation" id="formConfirmation">Bedankt voor je feedback!</div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Dislike-reden Modal ── -->
+<div class="modal-overlay" id="dislikeOverlay">
+  <div class="modal" id="dislikeModal" role="dialog" aria-modal="true" aria-labelledby="dislikeModalTitle">
+    <button class="modal-close" id="dislikeCloseBtn" type="button" aria-label="Sluiten">×</button>
+    <div class="modal-title" id="dislikeModalTitle">Reden voor dislike</div>
+    <div class="modal-subtitle">Help ons begrijpen wat er mis was.</div>
+
+    <form id="dislikeForm" novalidate>
+      <div class="form-group" id="dislikeReasonGroup">
+        <label>Advies was: <span class="required-mark">*</span></label>
+        <div class="satisfaction-toggle" id="dislikeReasonToggle" role="radiogroup" aria-label="Reden voor dislike">
+          <button type="button" class="satisfaction-option" data-value="te-koud">Te koud</button>
+          <button type="button" class="satisfaction-option" data-value="te-warm">Te warm</button>
+        </div>
+        <div class="field-error">Kies een van de opties.</div>
+      </div>
+
+      <div class="form-group" id="dislikeAdviceGroup">
+        <label for="dislikeAdviceSelect">Jouw jasadvies: <span class="required-mark">*</span></label>
+        <select id="dislikeAdviceSelect" name="jouwJasAdvies" required>
+          <option value="" disabled selected>Kies een optie</option>
+          <option value="shirt-of-blouse">Shirt of blouse</option>
+          <option value="trui">Trui</option>
+          <option value="tussenjas">Tussenjas</option>
+          <option value="regenjas">Regenjas</option>
+          <option value="winterjas">Winterjas</option>
+        </select>
+        <div class="field-error">Selecteer een optie.</div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="dislikeSubmitBtn">Verstuur</button>
+      <div class="form-confirmation" id="dislikeConfirmation">Bedankt voor je feedback!</div>
     </form>
   </div>
 </div>
@@ -1448,7 +1484,10 @@ selectCity = function(city) {
     dislikeBtn.setAttribute('aria-pressed', String(state === 'dislike'));
   }
   likeBtn.addEventListener('click', () => setLikeState(likeState === 'like' ? null : 'like'));
-  dislikeBtn.addEventListener('click', () => setLikeState(likeState === 'dislike' ? null : 'dislike'));
+  dislikeBtn.addEventListener('click', () => {
+    setLikeState('dislike');
+    openDislikeModal();
+  });
 
   function openModal(e) {
     if (e) e.preventDefault();
@@ -1554,6 +1593,96 @@ selectCity = function(city) {
       console.error(err);
       submitBtn.disabled = false;
       submitBtn.innerText = 'Verstuur feedback';
+    }
+  });
+
+  // ── Dislike-reden popup ──
+  let dislikeReasonValue = null; // 'te-koud' | 'te-warm'
+
+  const dislikeOverlay = document.getElementById('dislikeOverlay');
+  const dislikeCloseBtn = document.getElementById('dislikeCloseBtn');
+  const dislikeForm = document.getElementById('dislikeForm');
+  const dislikeReasonGroup = document.getElementById('dislikeReasonGroup');
+  const dislikeReasonToggle = document.getElementById('dislikeReasonToggle');
+  const dislikeAdviceGroup = document.getElementById('dislikeAdviceGroup');
+  const dislikeAdviceSelect = document.getElementById('dislikeAdviceSelect');
+  const dislikeSubmitBtn = document.getElementById('dislikeSubmitBtn');
+  const dislikeConfirmation = document.getElementById('dislikeConfirmation');
+
+  function openDislikeModal() {
+    dislikeOverlay.classList.add('open');
+    document.body.classList.add('modal-open');
+  }
+  function closeDislikeModal() {
+    dislikeOverlay.classList.remove('open');
+    document.body.classList.remove('modal-open');
+  }
+  dislikeCloseBtn.addEventListener('click', closeDislikeModal);
+  dislikeOverlay.addEventListener('click', (e) => { if (e.target === dislikeOverlay) closeDislikeModal(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && dislikeOverlay.classList.contains('open')) closeDislikeModal();
+  });
+
+  dislikeReasonToggle.querySelectorAll('.satisfaction-option').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      dislikeReasonValue = btn.dataset.value;
+      dislikeReasonToggle.querySelectorAll('.satisfaction-option').forEach((b) => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      dislikeReasonGroup.classList.remove('error');
+    });
+  });
+  dislikeAdviceSelect.addEventListener('change', () => dislikeAdviceGroup.classList.remove('error'));
+
+  function resetDislikeForm() {
+    dislikeForm.reset();
+    dislikeReasonToggle.querySelectorAll('.satisfaction-option').forEach((b) => b.classList.remove('selected'));
+    dislikeReasonValue = null;
+    dislikeReasonGroup.classList.remove('error');
+    dislikeAdviceGroup.classList.remove('error');
+    dislikeSubmitBtn.disabled = false;
+    dislikeSubmitBtn.innerText = 'Verstuur';
+    dislikeForm.style.display = '';
+    dislikeConfirmation.classList.remove('visible');
+  }
+
+  dislikeForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    let valid = true;
+    if (!dislikeReasonValue) { dislikeReasonGroup.classList.add('error'); valid = false; }
+    if (!dislikeAdviceSelect.value) { dislikeAdviceGroup.classList.add('error'); valid = false; }
+    if (!valid) return;
+
+    dislikeSubmitBtn.disabled = true;
+    dislikeSubmitBtn.innerText = 'Versturen...';
+
+    const payload = {
+      responseId: generateResponseId(),
+      likeDislike: 'dislike',
+      dislikeReden: dislikeReasonValue,
+      jouwJasAdvies: dislikeAdviceSelect.value,
+      weer: collectCurrentWeatherSnapshot()
+    };
+
+    try {
+      await fetch(FEEDBACK_ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload)
+      });
+
+      dislikeForm.style.display = 'none';
+      dislikeConfirmation.classList.add('visible');
+
+      setTimeout(() => {
+        closeDislikeModal();
+        resetDislikeForm();
+      }, 1800);
+    } catch (err) {
+      console.error(err);
+      dislikeSubmitBtn.disabled = false;
+      dislikeSubmitBtn.innerText = 'Verstuur';
     }
   });
 })();
